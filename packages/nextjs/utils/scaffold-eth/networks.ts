@@ -105,11 +105,12 @@ export function getBlockExplorerAddressLink(network: chains.Chain, address: stri
  * @returns targetNetwork object consisting targetNetwork from scaffold.config and extra network metadata
  */
 
-export function getTargetNetwork(): chains.Chain & Partial<TChainAttributes> {
+export function getTargetNetwork() {
   const configuredNetwork = scaffoldConfig.targetNetwork;
 
   return {
     ...configuredNetwork,
     ...NETWORKS_EXTRA_DATA[configuredNetwork.id],
+    entryPointAddress: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
   };
 }

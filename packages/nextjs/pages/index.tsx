@@ -1,7 +1,11 @@
 import type { NextPage } from "next";
 import { MetaHeader } from "~~/components/MetaHeader";
 
+// import { Address } from "~~/components/scaffold-eth";
+// import { useSmartAccount } from "~~/hooks/scaffold-eth/AcountAbstraction";
+
 const Home: NextPage = () => {
+  // const { scwAddress } = useSmartAccount();
   return (
     <>
       <MetaHeader />
@@ -13,7 +17,12 @@ const Home: NextPage = () => {
           </h1>
         </div>
 
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12"></div>
+        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
+          <div className="flex flex-col">
+            {/* <p>Smart Account Address</p> */}
+            {/* <Address address={scwAddress} /> */}
+          </div>
+        </div>
       </div>
     </>
   );
