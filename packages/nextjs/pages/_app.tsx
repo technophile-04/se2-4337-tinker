@@ -1,19 +1,32 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import type { AppProps } from "next/app";
 import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import NextNProgress from "nextjs-progressbar";
 import { Toaster } from "react-hot-toast";
 import { useDarkMode } from "usehooks-ts";
-import { WagmiConfig } from "wagmi";
+import { WagmiConfig, useAccount } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { useNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
+import { SCW_ADDRESS_STORAGE_KEY } from "~~/hooks/scaffold-eth/AcountAbstraction";
 import { useGlobalState } from "~~/services/store/store";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { appChains } from "~~/services/web3/wagmiConnectors";
 import "~~/styles/globals.css";
+
+export const GlobalDisconnectSubscriber = ({ children }: { children: ReactNode }) => {
+  useAccount({
+    onDisconnect() {
+      if (window) {
+        window.localStorage.setItem(SCW_ADDRESS_STORAGE_KEY, "");
+      }
+    },
+  });
+
+  return <>{children}</>;
+};
 
 const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   const price = useNativeCurrencyPrice();
@@ -43,7 +56,9 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="relative flex flex-col flex-1">
-            <Component {...pageProps} />
+            <GlobalDisconnectSubscriber>
+              <Component {...pageProps} />
+            </GlobalDisconnectSubscriber>
           </main>
           <Footer />
         </div>

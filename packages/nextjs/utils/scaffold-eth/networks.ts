@@ -105,7 +105,7 @@ export function getBlockExplorerAddressLink(network: chains.Chain, address: stri
  * @returns targetNetwork object consisting targetNetwork from scaffold.config and extra network metadata
  */
 
-export function getTargetNetwork() {
+export function getTargetNetwork(): chains.Chain & Partial<TChainAttributes> & { entryPointAddress: string } {
   const configuredNetwork = scaffoldConfig.targetNetwork;
 
   return {

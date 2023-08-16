@@ -1,17 +1,17 @@
-const deployedContracts = {
-  "5": [
+const contracts = {
+  31337: [
     {
-      name: "goerli",
-      chainId: "5",
+      chainId: "31337",
+      name: "localhost",
       contracts: {
-        SimpleAccountFactory: {
-          address: "0x9406Cc6185a346906296840746125a0E44976454",
+        YourContract: {
+          address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
           abi: [
             {
               inputs: [
                 {
-                  internalType: "contract IEntryPoint",
-                  name: "_entryPoint",
+                  internalType: "address",
+                  name: "_owner",
                   type: "address",
                 },
               ],
@@ -19,13 +19,96 @@ const deployedContracts = {
               type: "constructor",
             },
             {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "address",
+                  name: "greetingSetter",
+                  type: "address",
+                },
+                {
+                  indexed: false,
+                  internalType: "string",
+                  name: "newGreeting",
+                  type: "string",
+                },
+                {
+                  indexed: false,
+                  internalType: "bool",
+                  name: "premium",
+                  type: "bool",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "value",
+                  type: "uint256",
+                },
+              ],
+              name: "GreetingChange",
+              type: "event",
+            },
+            {
               inputs: [],
-              name: "accountImplementation",
+              name: "greeting",
               outputs: [
                 {
-                  internalType: "contract SimpleAccount",
+                  internalType: "string",
+                  name: "",
+                  type: "string",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "owner",
+              outputs: [
+                {
+                  internalType: "address",
                   name: "",
                   type: "address",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "premium",
+              outputs: [
+                {
+                  internalType: "bool",
+                  name: "",
+                  type: "bool",
+                },
+              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [
+                {
+                  internalType: "string",
+                  name: "_newGreeting",
+                  type: "string",
+                },
+              ],
+              name: "setGreeting",
+              outputs: [],
+              stateMutability: "payable",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "totalCounter",
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
                 },
               ],
               stateMutability: "view",
@@ -35,55 +118,37 @@ const deployedContracts = {
               inputs: [
                 {
                   internalType: "address",
-                  name: "owner",
+                  name: "",
                   type: "address",
                 },
+              ],
+              name: "userGreetingCounter",
+              outputs: [
                 {
                   internalType: "uint256",
-                  name: "salt",
+                  name: "",
                   type: "uint256",
                 },
               ],
-              name: "createAccount",
-              outputs: [
-                {
-                  internalType: "contract SimpleAccount",
-                  name: "ret",
-                  type: "address",
-                },
-              ],
+              stateMutability: "view",
+              type: "function",
+            },
+            {
+              inputs: [],
+              name: "withdraw",
+              outputs: [],
               stateMutability: "nonpayable",
               type: "function",
             },
             {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "owner",
-                  type: "address",
-                },
-                {
-                  internalType: "uint256",
-                  name: "salt",
-                  type: "uint256",
-                },
-              ],
-              name: "getAddress",
-              outputs: [
-                {
-                  internalType: "address",
-                  name: "",
-                  type: "address",
-                },
-              ],
-              stateMutability: "view",
-              type: "function",
+              stateMutability: "payable",
+              type: "receive",
             },
           ],
         },
       },
     },
   ],
-};
+} as const;
 
-export default deployedContracts;
+export default contracts;

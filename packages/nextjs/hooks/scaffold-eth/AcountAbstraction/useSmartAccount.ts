@@ -1,39 +1,45 @@
 import { useEffect, useState } from "react";
 import { useEthersProvider, useEthersSigner } from "../Adapters";
-import { type ClientConfig, SimpleAccountAPI, wrapProvider } from "@account-abstraction/sdk";
-import { JsonRpcProvider } from "@ethersproject/providers";
+import { SimpleAccountAPI } from "@account-abstraction/sdk";
 import { useLocalStorage } from "usehooks-ts";
-import scaffoldConfig from "~~/scaffold.config";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
-const scwAddressStorageKey = "scaffoldEth2.scwAddress";
+export const SCW_ADDRESS_STORAGE_KEY = "scaffoldEth2.scwAddress";
+
 export const useSmartAccount = () => {
   const targetNetwork = getTargetNetwork();
   const signer = useEthersSigner();
   const provider = useEthersProvider();
-  const [scwAddress, setSCWAddress] = useLocalStorage(scwAddressStorageKey, "");
+  const [scwAddress, setSCWAddress] = useLocalStorage(SCW_ADDRESS_STORAGE_KEY, "");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      if (provider && signer) {
-        const walletAPI = new SimpleAccountAPI(
-          provider,
-          targetNetwork.entryPointAddress,
-          signer,
-          "0x9406cc6185a346906296840746125a0e44976454",
-        );
-        const config: ClientConfig = {
-          entryPointAddress: targetNetwork.entryPointAddress,
-          bundlerUrl: `${targetNetwork.rpcUrls.alchemy.http[0]}/${scaffoldConfig.alchemyApiKey}`,
-        };
+    const getSmartAccountAddress = async () => {
+      setLoading(true);
+      try {
+        if (provider && signer) {
+          const walletAPI = new SimpleAccountAPI({
+            provider,
+            entryPointAddress: targetNetwork.entryPointAddress,
+            owner: signer,
+            factoryAddress: "0x9406cc6185a346906296840746125a0e44976454",
+          });
 
-        const aaProvider = await wrapProvider(provider as JsonRpcProvider, config, signer);
-        const address = await aaProvider?.getSigner().getAddress();
-        setSCWAddress(address);
+          const address = await walletAPI.getAccountAddress();
+          setSCWAddress(address);
+        }
+      } catch (e) {
+        console.log("Error happend", e);
+      } finally {
+        setLoading(false);
       }
-    })();
-  }, [provider, signer]);
+    };
+
+    if (!scwAddress) {
+      getSmartAccountAddress();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signer]);
 
   return { scwAddress, loading };
 };
