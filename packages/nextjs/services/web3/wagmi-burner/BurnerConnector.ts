@@ -143,4 +143,21 @@ export class BurnerConnector extends Connector<StaticJsonRpcProvider, BurnerConn
   protected onDisconnect(error: Error): void {
     if (error) console.warn(error);
   }
+
+  async signMessage(message: string) {
+    const bunerAccount = privateKeyToAccount(loadBurnerSK());
+    const chainId = await this.getChainId();
+    const chain = this.getChainFromId(chainId);
+
+    const client = createWalletClient({
+      chain,
+      account: bunerAccount,
+      transport: http(),
+    });
+
+    return client.signMessage({
+      account: bunerAccount,
+      message,
+    });
+  }
 }

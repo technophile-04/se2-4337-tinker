@@ -6,11 +6,12 @@ import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 export const SCW_ADDRESS_STORAGE_KEY = "scaffoldEth2.scwAddress";
 
-export const useSmartAccount = () => {
+export const useSimpleAccount = () => {
   const targetNetwork = getTargetNetwork();
   const signer = useEthersSigner();
   const provider = useEthersProvider();
   const [scwAddress, setSCWAddress] = useLocalStorage(SCW_ADDRESS_STORAGE_KEY, "");
+  const [simpleAccountAPI, setSimpleAccountAPI] = useState<SimpleAccountAPI | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export const useSmartAccount = () => {
 
           const address = await walletAPI.getAccountAddress();
           setSCWAddress(address);
+          setSimpleAccountAPI(walletAPI);
         }
       } catch (e) {
         console.log("Error happend", e);
@@ -41,5 +43,5 @@ export const useSmartAccount = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signer]);
 
-  return { scwAddress, loading };
+  return { scwAddress, loading, simpleAccountAPI };
 };
