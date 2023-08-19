@@ -14,6 +14,34 @@ export const useSimpleAccount = () => {
   const [simpleAccountAPI, setSimpleAccountAPI] = useState<SimpleAccountAPI | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
+  // Hack: default getUserOpReceipt does not include fromBlock which causes an error for some RPC providers.
+  const getUserOpReceipt = async ({
+    userOpHash,
+    timeOut = 30000,
+    interval = 5000,
+  }: {
+    userOpHash: string;
+    timeOut?: number;
+    interval?: number;
+  }) => {
+    if (!simpleAccountAPI) return undefined;
+    const endTime = Date.now() + timeOut;
+    const block = await simpleAccountAPI.provider.getBlock("latest");
+    while (Date.now() < endTime) {
+      // @ts-expect-error
+      const events = await simpleAccountAPI?.entryPointView.queryFilter(
+        // @ts-expect-error
+        simpleAccountAPI.entryPointView.filters.UserOperationEvent(userOpHash),
+        Math.max(0, block.number - 100),
+      );
+      if (events.length > 0) {
+        return events[0].transactionHash;
+      }
+      await new Promise(resolve => setTimeout(resolve, interval));
+    }
+    return undefined;
+  };
+
   useEffect(() => {
     const getSmartAccountAddress = async () => {
       setLoading(true);
@@ -43,5 +71,5 @@ export const useSimpleAccount = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signer]);
 
-  return { scwAddress, loading, simpleAccountAPI };
+  return { scwAddress, loading, simpleAccountAPI, getUserOpReceipt };
 };
