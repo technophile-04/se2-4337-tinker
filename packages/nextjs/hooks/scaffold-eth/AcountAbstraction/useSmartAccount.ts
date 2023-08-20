@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useEthersProvider, useEthersSigner } from "../Adapters";
-import { SimpleAccountAPI } from "@account-abstraction/sdk";
+import { UserOperationStruct } from "@account-abstraction/contracts";
+import { HttpRpcClient, SimpleAccountAPI } from "@account-abstraction/sdk";
 import { useLocalStorage } from "usehooks-ts";
+import { usePublicClient } from "wagmi";
+import scaffoldConfig from "~~/scaffold.config";
 import { getTargetNetwork } from "~~/utils/scaffold-eth";
 
 export const SCW_ADDRESS_STORAGE_KEY = "scaffoldEth2.scwAddress";
@@ -10,6 +13,7 @@ export const useSimpleAccount = () => {
   const targetNetwork = getTargetNetwork();
   const signer = useEthersSigner();
   const provider = useEthersProvider();
+  const publicClient = usePublicClient();
   const [scwAddress, setSCWAddress] = useLocalStorage(SCW_ADDRESS_STORAGE_KEY, "");
   const [simpleAccountAPI, setSimpleAccountAPI] = useState<SimpleAccountAPI | undefined>(undefined);
   const [loading, setLoading] = useState(false);
@@ -42,6 +46,16 @@ export const useSimpleAccount = () => {
     return undefined;
   };
 
+  const sendSimpleAccountUserOp = async ({ userOp }: { userOp: UserOperationStruct }) => {
+    const bundlerUrl = `${targetNetwork.rpcUrls.alchemy?.http[0]}/${scaffoldConfig.alchemyApiKey}`;
+    const httpRpcClient = new HttpRpcClient(bundlerUrl, targetNetwork.entryPointAddress, publicClient.chain.id);
+    const uoHash = await httpRpcClient.sendUserOpToBundler(userOp);
+    console.log("UoHash", uoHash);
+    const receipt = await getUserOpReceipt({ userOpHash: uoHash });
+    console.log("Receipt is :", receipt);
+    return receipt;
+  };
+
   useEffect(() => {
     const getSmartAccountAddress = async () => {
       setLoading(true);
@@ -71,5 +85,5 @@ export const useSimpleAccount = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signer]);
 
-  return { scwAddress, loading, simpleAccountAPI, getUserOpReceipt };
+  return { scwAddress, loading, simpleAccountAPI, getUserOpReceipt, sendSimpleAccountUserOp };
 };
